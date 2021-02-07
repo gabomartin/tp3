@@ -20,10 +20,10 @@ first:       sw $0, 4($v0)       # primer nodo inicializado a null
 
              .data 0x10001000
 slist:       .word 0 # inicializado a null
-numbers:     .word 1,2,3 # lista de enteros
+numbers:     .word 1,2,3,4 # lista de enteros
              .text
 main:        la $s0, numbers
-             li $s1, 3
+             li $s1, 4
 loop:        lw $a0, ($s0)
              jal newnode       #jump and link
              addi $s0, $s0, 4  #agrega 4 bytes para mover puntero (suposicion)
