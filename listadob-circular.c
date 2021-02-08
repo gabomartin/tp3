@@ -1,13 +1,17 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define MAX 16
 
 typedef struct nodo{
-    int dato;
+    char dato[MAX];
     struct nodo* nextCategory;
     struct nodo* prevCategory;
 }nodo;
 
 nodo* primero = NULL;
 nodo* ultimo = NULL;
+
 
 void newNode(); // nodo nuevo
 
@@ -60,7 +64,7 @@ int main(){
 void newNode(){ // nodo nuevo
     nodo* newCategory = (nodo*)malloc(sizeof(nodo));
     printf("Ingresar dato del nodo:\n");
-    scanf("%d", &newCategory->dato);
+    scanf("%s", &newCategory->dato);
 
     if(primero == NULL){
         primero = newCategory;
@@ -83,7 +87,7 @@ void mostrarListaPU(){ // muestra la lista desde el primero al ultimo
     actual = primero;
     if (primero != NULL){
         do{
-            printf("%d\n\n\n", actual->dato);
+            printf("%s\n\n\n", actual->dato);
             actual = actual->nextCategory;
         }while(actual != primero);
 
@@ -97,7 +101,7 @@ void mostrarListaUP(){ // muestra la lista desde el ultimo al primero
     actual = ultimo;
     if (primero != NULL){
         do{
-            printf("%d\n\n\n", actual->dato);
+            printf("%s\n\n\n", actual->dato);
             actual = actual->prevCategory;
         }while(actual != ultimo);
 
@@ -112,13 +116,15 @@ void delNode() // eliminar nodo
 	actual = primero;
 	nodo* anterior = (nodo*) malloc(sizeof(nodo));
 	anterior = NULL;
-	int nodoBuscado = 0, encontrado = 0;
+	char nodoBuscado[MAX];
+	int encontrado = 0;
 	printf("Ingresar dato del nodo a buscar para eliminarlo: ");
-	scanf("%d", &nodoBuscado);
+	scanf("%s", &nodoBuscado);
 	if(primero!=NULL){
 		do{
-			if(actual->dato == nodoBuscado){
-				printf("\nNodo con el dato %d encontrado\n", nodoBuscado);
+			//if(actual->dato == nodoBuscado){   
+			if(strcmp(actual->dato, nodoBuscado)==0){
+				printf("\nNodo con el dato %s encontrado\n", nodoBuscado);
 
 				if(actual==primero){
 					primero = primero->nextCategory;
