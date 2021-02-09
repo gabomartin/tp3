@@ -14,7 +14,7 @@ obj* tail = NULL;  //ultimo
 
 typedef struct nodo{                      //categorias
     char cat[MAX];
-	struct obj* first;                     // apunta a otra lista que contiene los elementos de dicha categoria
+	struct obj** first;                     // apunta a otra lista que contiene los elementos de dicha categoria
     struct nodo* nextCategory;
     struct nodo* prevCategory;
 }nodo;
@@ -79,7 +79,7 @@ int main(){
 
 void newCat(){ // nodo nuevo
     nodo* newCategory = (nodo*)malloc(sizeof(nodo));
-    printf("Ingresar categoria del nodo:\n");
+    printf("\nIngresar categoria del nodo:");
     scanf("%s", &newCategory->cat);
 
     if(primero == NULL){
@@ -94,11 +94,11 @@ void newCat(){ // nodo nuevo
         ultimo = newCategory;
         primero->prevCategory = ultimo;
     }
-printf("Categoria ingresada\n\n");
+printf("\nCategoria ingresada\n");
 
 }
 
-void mostrarListaPU(){ // muestra la lista desde el primero al ultimo
+/* void mostrarListaPU(){ // muestra la lista desde el primero al ultimo
     nodo* actual = (nodo*)malloc(sizeof(nodo));
     actual = primero;
     if (primero != NULL){
@@ -109,6 +109,29 @@ void mostrarListaPU(){ // muestra la lista desde el primero al ultimo
 
     }else{
         printf("La lista esta vacia.\n");
+    }
+}
+backup */
+
+void mostrarListaPU(){ // muestra la lista desde el primero al ultimo
+    nodo* actual = (nodo*)malloc(sizeof(nodo));
+	obj* actualObj = (obj*)malloc(sizeof(obj));
+    actual = primero;
+	actualObj = head;
+    if (primero != NULL){
+        do{
+            printf("%s contiene los objetos:\n\n", actual->cat);
+			
+			do{
+			printf("\n%s\n", actualObj->objeto);
+			actualObj = actualObj->nextObject;
+			}while(actualObj != head);
+
+            actual = actual->nextCategory;
+        }while(actual != primero);
+
+    }else{
+        printf("\nLa lista esta vacia.\n");
     }
 }
 
@@ -122,7 +145,7 @@ void mostrarListaUP(){ // muestra la lista desde el ultimo al primero
         }while(actual != ultimo);
 
     }else{
-        printf("La lista esta vacia.\n");
+        printf("\nLa lista esta vacia.\n");
     }
 }
 
@@ -134,7 +157,7 @@ void delCat() // eliminar nodo
 	anterior = NULL;
 	char nodoBuscado[MAX];
 	int encontrado = 0;
-	printf("Ingresar categoria del nodo a buscar para eliminarlo: ");
+	printf("\nIngresar categoria del nodo a buscar para eliminarlo: ");
 	scanf("%s", &nodoBuscado);
 	if(primero!=NULL){
 		do{
@@ -181,7 +204,7 @@ void newObj(){ // obj nuevo
     char catBuscada[MAX];
 	int encontrado = 0;
     printf("Ingresar categoria a ingresar objeto:\n");
-    scanf("%s", &catBuscada);                                   //crashea dsp de esto
+    scanf("%s", &catBuscada);                               
     do{
     if(strcmp(actual->cat, catBuscada)==0)
 	    {
@@ -197,7 +220,7 @@ void newObj(){ // obj nuevo
              head->nextObject = head;
              tail = head;
              head->prevObject = tail;
-		     obj* first =  head;   ///quiero indicar el primer objeto de la categoria!!
+		     obj** first = &head;   ///quiero indicar el primer objeto de la categoria!!decia head dsp de =
             }else
 			{
              tail->nextObject = newObj;
