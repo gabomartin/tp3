@@ -10,7 +10,7 @@ options: .asciiz      "Elija la opcion a realizar y presione enter:
                       \n 6 - Listar categoria
                       \n 7 - Listar objetos   
                       \n "
-
+emptyLine: .asciiz    "\n"
 cat:  .asciiz "Introduzca nombre de categoria:\n"   
 obj:   .asciiz "Introduzca el nombre del objeto:\n"
 
@@ -28,7 +28,7 @@ nextcat:
 main: 
 start:      
       #Verifica si no hay ningun elemento
-      beqz  $s7, noEle  
+      beqz  $s7, noEle      
       #Si no es cero, hace 3 prints: 1) the current node is: 2) the string to the curr  3) a new line
       la    $a0, currentIs # 1)
       jal   consolePrint
@@ -98,6 +98,12 @@ first:       sw $0, 4($v0)       # primer nodo inicializado a null
 
 
 insertObj:
+
+#syscall to print something
+consolePrint:
+	li	$v0, 4
+	syscall
+	jr	$ra
 
 
 

@@ -122,10 +122,12 @@ void mostrarListaPU(){ // muestra la lista desde el primero al ultimo
         do{
             printf("%s contiene los objetos:\n\n", actual->cat);
 			
+			if (head != NULL){
 			do{
 			printf("\n%s\n", actualObj->objeto);
 			actualObj = actualObj->nextObject;
 			}while(actualObj != head);
+			}else printf("\nLa categoria esta vacia.\n");
 
             actual = actual->nextCategory;
         }while(actual != primero);
