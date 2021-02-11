@@ -8,7 +8,7 @@
 	nextcat: .asciiz "\n \t E imprime categoria siguiente"
 	previuscat: .asciiz "\n \t F imprime categoria anterior"
 	cat:.asciiz "\n \t G imprime categoria actual"
-	orTerminate: .asciiz "\n I X para terminar:"
+	orTerminate: .asciiz "\n \t H para terminar:"
 	askForCat: .asciiz "\n \n \t Introduzca el nombre de la categoria:"
 	askForObject: .asciiz "\t Introduzca el nombre del objeto:"
 	alreadyExists: .asciiz "\n \n \t Ya existe una lista enlazada. Ingrese 'A' en el menú para agregar nodos o 'L' para mostrarla. \n"
@@ -76,21 +76,19 @@ PrintMenu:
 	la $a0, prompt			# carga prompt en $a0 para imprimir
 	li $v0, 4				# codigo syscall para imprimir cadena
 	syscall					# imprime la cadena en $a0
-	la $a0, Createcat		# carga la siguiente cadena
+	la $a0, createcat		# carga la siguiente cadena
 	syscall	
-	la $a0, Createobj
+	la $a0, createobj
 	syscall				
-	la $a0, Deletecat				
+	la $a0, deletecat				
 	syscall
-	la $a0, Deleteobj
+	la $a0, deleteobj
 	syscall
-	la $a0, Delete
+	la $a0, nextcat
 	syscall
-	la $a0, Nextcat
+	la $a0, previuscat
 	syscall
-	la $a0, Previuscat
-	syscall
-	la $a0, Cat
+	la $a0, cat
 	syscall
 	la $a0, orTerminate
 	syscall
@@ -100,7 +98,7 @@ PrintMenu:
 #	     Recupera la entrada del menú del usuario, almacenada en el registro $ v0.     #
 #======================================================================================#
 
-GetUserMenuInput:
+getUserMenuInput:
 
 	li $v0, 12				# codigo syscall para leer un char
 	syscall					# lee el char (ahora esta en $v0)
@@ -116,7 +114,7 @@ Createcat:
 	#ACA DEBERIA IRSE AL NODO SIGUIENTE SI ES DIFERENTE DE 0#
 
 	li $v0, 9				# codigo syscall (9) para asignar memoria	
-	li $a0, 12				# Se necesitan doce bytes (3 palabras)
+	li $a0, 16				# Se necesitan doce bytes (4 palabras)
 	syscall						
 	move $s1, $v0			# Almacenar esa direccion como el encabezado
 
