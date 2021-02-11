@@ -8,11 +8,11 @@
 	nextcat: .asciiz "\n \t E imprime categoria siguiente"
 	previuscat: .asciiz "\n \t F imprime categoria anterior"
 	cat:.asciiz "\n \t G imprime categoria actual"
-	orTerminate: .asciiz "\n \t H para terminar:"
+	orTerminate: .asciiz "\n  H para terminar:"
 	askForCat: .asciiz "\n \n \t Introduzca el nombre de la categoria:"
 	askForObject: .asciiz "\t Introduzca el nombre del objeto:"
 	alreadyExists: .asciiz "\n \n \t Ya existe una lista enlazada. Ingrese 'A' en el menú para agregar nodos o 'L' para mostrarla. \n"
-	addToNullHead: .asciiz "\n \n \t Debe crear una lista vinculada antes de poder insertar un nuevo nodo. Consulte la opción de menú 'C'. \n"
+    addToNullHead: .asciiz "\n \n \t Debe crear una lista vinculada antes de poder insertar un nuevo nodo. Consulte la opción de menú 'C'. \n"
 	displayRequiresList: .asciiz "\n \n \t Debe crear una lista vinculada antes de poder imprimirla. Consulte la opción de menú 'C'. \n"
 	searchRequiresList: .asciiz "\n \n \t Debe crear una lista vinculada antes de poder buscar un nodo. Consulte la opción de menú 'C'. \n"
 	noNodesToDelete: .asciiz "\n \n \t Debe crear una lista vinculada antes de poder eliminar un nodo. Consulte la opción de menú 'C'. \n"
@@ -47,8 +47,9 @@ loop:	jal PrintMenu				#Imprime el indicador del menu y las opciones
 	seq $t0, $v0,'G'
 	bne $t0, $zero, G
 	seq $t0, $v0, 'H'
-	bne $t0, $zero, H
+	bne $t0, $zero, Exit
 	j loop
+
 	
 	A:	jal Createcat
 		j loop
@@ -98,7 +99,7 @@ PrintMenu:
 #	     Recupera la entrada del menú del usuario, almacenada en el registro $ v0.     #
 #======================================================================================#
 
-getUserMenuInput:
+GetUserMenuInput:
 
 	li $v0, 12				# codigo syscall para leer un char
 	syscall					# lee el char (ahora esta en $v0)
@@ -137,7 +138,6 @@ Createcat:
 	jr $ra					# retorna
 
 	AlreadyExists:
-
 	la $a0, alreadyExists	# carga la cadena para imprimir
 	li $v0, 4				# codigo syscall para imprimir cadena
 	syscall					# imprime el string
@@ -150,7 +150,7 @@ Createcat:
 #	                        Imprime el contenido de los nodos                   	   #
 #======================================================================================#
 
-Display:
+Cat:
 
 	beq $s1, $0, DisplayRequiresList	# funcionaria sin esto pero informa al usuario
 
@@ -218,7 +218,7 @@ IsUniqueID:
 #	Adds a new node to the existing Linked List in sorted fashion (by value).      #
 #======================================================================================#
 
-AddNode:
+Createobj:
 
 	beq $s1, $0, AddingToNullHead		# reject insertion of a new node if head is nullptr	
 
