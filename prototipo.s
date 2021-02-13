@@ -4,20 +4,22 @@
 	newCategory: .asciiz "\n \t A Crear una categoria"
 	nextCategory: .asciiz "\n \t B Categoria siguiente"
 	prevCategory: .asciiz "\n \t C Categoria anterior"
-	delCategory: .asciiz "\n \t D Eliminar una categoria"
-	display: .asciiz "\n \t E Mostrar las categorias"
+	delCategory: .asciiz "\n \t D Mostrar categoria"
+	display: .asciiz "\n \t E Eliminar categoria"
 	newObject: .asciiz "\n \t F Crear un objeto"
 	delObject: .asciiz "\n \t G Elimina objeto"
 	addNode: .asciiz "\n \t H Agrega un nodo"
 	delNode:.asciiz "\n \t I Elimina un nodo"
 	orTerminate: .asciiz "\n \t T para terminar:"
-	askForCat: .asciiz "\n\n\tIngrese el nombre de la categoria: "
+	askForCat: .asciiz "\n\n\tIngrese el nombre de la categoria y presione enter: "
+    displayRequiresList: .asciiz "\n \n \t Debe crear una categoria antes de poder imprimirla.. \n"
+    categoryIs: .asciiz "\n \n \t La categoria es: \t "
+    newNode: .asciiz "\n El nodo es nulo"
     
 
-
     slist: .word 0 # inicializado a null
-    next:  .word 0 # inicializado a null
-    prev:  .word 0 # inicializado a null
+    #next:  .word 0 # inicializado a null
+    #prev:  .word 0 # inicializado a null
     #numbers: .word 1,2,3,4 # lista de enteros  
 .text
 
@@ -26,8 +28,7 @@
 # ================================================================================================ #
 
 main:	lw $s1, slist				# head = nullptr
-        lw $s2, next
-        lw $s3, prev
+        
 #main: li $s1, numbers
       #li $s1, 4
 #loop: lw $a0, ($s0)
@@ -68,9 +69,9 @@ loop:	jal PrintMenu				#Imprime el indicador del menu y las opciones
 		j loop
 	C:	jal PrevCategory
 		j loop
-	D:	jal DelCategory
+	D:	jal Display
 		j loop
-	E:	jal Display
+	E:	jal DelCategory
 		j loop
 	F:	jal NewObject
 		j loop
@@ -98,9 +99,9 @@ PrintMenu:
 	syscall				
 	la $a0, prevCategory				
 	syscall
-	la $a0, delCategory
-	syscall
 	la $a0, display
+	syscall
+	la $a0, delCategory
 	syscall
 	la $a0, newObject
 	syscall
@@ -133,29 +134,66 @@ GetUserMenuInput:
 #C pero muchísimo más siemple.
 
 NewCategory:
-    jal Sbrk
-    move $t0, $a0 # preserva arg 1 
-    la $a0, askForCat			# prompt user to enter an ID
-	li $v0, 4				# syscall code for printing string
-	syscall					# print the prompt
+
+    li $a0, 16   # Se necesitan 12 bytes (4 palabras)
+    li $v0, 9    # codigo para asignar memoria
+    syscall      # return node address in v0
+
+
+    #jal Sbrk
+    move $s1, $v0           # preserva arg 1 
+
+    la $a0, askForCat		# Solicita que ingrese una categoria
+	li $v0, 4				# codigo syscall para imprimir cadena
+	syscall					# imprime el mensaje
+
+	li $v0, 8               # lee la cadena
+	syscall                 # lee la cadena
+	sw $v0, 0($s1)          # almacenamos la cadena en la memoria, primer campo
+
+	sw $0, 4($s1)           # next = puntero a nuevo nodo
+	jr $ra
     #li $v0, 9
     #li $a0, 16 #era 8 pq solo necesita dos campos 16 ahora pq necesita 4
-    #syscall  
-    #jal Sbrk      #usar jal sbrk no funciona, queda en loop infinito       
+    #syscall             
     #sw $t0, ($v0) # guarda el arg en new node
     #lw $t1, slist
     #beq $t1, $0, First # ? si la lista es vacia
     #sw $t1, 4($v0) # inserta new node por el frente
     #sw $v0, slist # actualiza la lista
-    jal Smalloc
-    #jal Sfree
-    jr $ra
+    #jal Smalloc
+    
+Display:
 
-    #First:
+    beq $s1, $0, DisplayRequiresList # código funcionaría sin esto, pero es mejor informar al usuario
 
-    #sw $0, 4($v0) # primer nodo inicializado a null
-    #sw $v0, slist # apunta la lista a new node
-    #jr $ra
+	move $t0, $s1 # actual = LinkedList.head
+
+	DisplayLoop:
+	beq $t0, $0, ReturnFromDisplay   # comprueba si estamos en un nodo nulo ( $ 0 )
+	la $a0, categoryIs               # La categoria es
+	li $v0, 4 				         # código syscall para  imprimir una cadena
+	syscall                          # imprime la cadena
+	
+	li $v0, 4				# código syscall para  imprimir cadena
+	la $a0, 0($t0)          # carga la cat en $a0  para  imprimir
+	syscall                 # imprime la cat
+	
+	lw $t0, 4($t0) # actual = actual-> siguiente
+	jr $ra         # Vuelve una vez que muestra
+
+	ReturnFromDisplay:
+	li $v0, 4 				# código syscall para  imprimir cadena
+	la $a0 , newNode        # informa que el nodo es nulo
+	syscall                 # imprime la nueva línea
+	jr $ra                  # regresar a la persona que llama
+
+	DisplayRequiresList:
+	la $a0 , displayRequiresList # cargar mensaje para  imprimir
+	li $v0, 4 				      # código syscall para  imprimir cadena
+	syscall                       # imprimirlo
+	jr $ra                       # regresar a la persona que llama
+
 
 Smalloc:
 
@@ -168,9 +206,9 @@ Smalloc:
 
 Sbrk:
 
-    li $v0, 9
-    li $a0, 16 # node size fixed 4 words
-    syscall # return node address in v0
+    li $a0, 16  # Se necesitan 16 bytes (4 palabras)
+    li $v0, 9   # codigo para asignar memoria
+    syscall     # return node address in v0
     jr $ra
 
 Sfree:
