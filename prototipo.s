@@ -21,6 +21,8 @@
     #next:  .word 0 # inicializado a null
     #prev:  .word 0 # inicializado a null
     #numbers: .word 1,2,3,4 # lista de enteros  
+	ccount: .word 0 #contADOR de categorias
+
 .text
 
 # ================================================================================================ #
@@ -136,7 +138,7 @@ GetUserMenuInput:
 NewCategory:
 
     li $a0, 16   # Se necesitan 12 bytes (4 palabras)
-    li $v0, 9    # codigo para asignar memoria
+    li $v0, 9    # codigo para asignar memoria       <----simil sbrk
     syscall      # return node address in v0
 
 
@@ -151,8 +153,17 @@ NewCategory:
 	syscall                 # lee la cadena
 	sw $v0, 0($s1)          # almacenamos la cadena en la memoria, primer campo
 
+    #si es 0 signiica primero en la lista
+
+    la $t0, ccount
+	bne $t0, $0, first #salta a irst si es correcto
+    
+	first:
 	sw $0, 4($s1)           # next = puntero a nuevo nodo
 	jr $ra
+	addi $t0, $t0, 1
+
+
     #li $v0, 9
     #li $a0, 16 #era 8 pq solo necesita dos campos 16 ahora pq necesita 4
     #syscall             
