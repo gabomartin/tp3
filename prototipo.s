@@ -21,15 +21,13 @@
     #next:  .word 0 # inicializado a null
     #prev:  .word 0 # inicializado a null
     #numbers: .word 1,2,3,4 # lista de enteros  
-	ccount: .word 0 #contADOR de categorias
-
 .text
 
 # ================================================================================================ #
 # Punto de entrada del programa. Solicita la entrada del usuario y dirige a las opciones del menú. #
 # ================================================================================================ #
 
-main:	#lw $s1, slist				# head = nullptr
+main:	lw $s1, slist				# head = nullptr
         
 #main: li $s1, numbers
       #li $s1, 4
@@ -137,61 +135,41 @@ GetUserMenuInput:
 
 NewCategory:
 
+    li $a0, 16   # Se necesitan 16 bytes (4 palabras)
+    li $v0, 9    # codigo para asignar memoria
+    syscall      # return node address in v0
+    
+    #jal Sbrk
+    move $s1, $v0           # preserva arg 1 
+
     la $a0, askForCat		# Solicita que ingrese una categoria
 	li $v0, 4				# codigo syscall para imprimir cadena
 	syscall					# imprime el mensaje
-
 	li $v0, 8               # lee la cadena
-	li $a1, 4               # lee la cadena
 	syscall                 # lee la cadena
-	sw $v0, ($s0)      # almacenamos la cadena en la memoria, primer campo
-    
-    li $a0, 16   # Se necesitan 16 bytes (4 palabras)
-    li $v0, 9    # codigo para asignar memoria       <----simil sbrk
-    syscall      # return node address in v0
-
-    sw $t0, ($v0) # guarda el arg en new node
-    lw $t1, slist
-    beq $t1, $0, first # ? si la lista es vacia
-    sw $t1, 4($v0) # inserta new node por el frente
-    sw $v0, slist # actualiza la lista
-    jr $ra
-    first: 
-    sw $0, 4($v0) # primer nodo inicializado a null
-    sw $v0, slist # apunta la lista a new node
-    jr $ra
-    
 	
+	sw $v0, 0($s1)          # almacenamos la cadena en la memoria, primer campo
 
-
-    #li $v0, 9
-    #li $a0, 16 #era 8 pq solo necesita dos campos 16 ahora pq necesita 4
-    #syscall             
-    #sw $t0, ($v0) # guarda el arg en new node
-    #lw $t1, slist
-    #beq $t1, $0, First # ? si la lista es vacia
-    #sw $t1, 4($v0) # inserta new node por el frente
-    #sw $v0, slist # actualiza la lista
-    #jal Smalloc
+	#sw $0, slist           # next = puntero a nuevo nodo
+	jr $ra
     
 Display:
-
+    
+    
     beq $s1, $0, DisplayRequiresList # código funcionaría sin esto, pero es mejor informar al usuario
 
-	move $t0, $s1 # actual = LinkedList.head
-
-	DisplayLoop:
+	move $t0, $s1                    # actual = LinkedList.head
 	beq $t0, $0, ReturnFromDisplay   # comprueba si estamos en un nodo nulo ( $ 0 )
 	la $a0, categoryIs               # La categoria es
 	li $v0, 4 				         # código syscall para  imprimir una cadena
 	syscall                          # imprime la cadena
 	
-	li $v0, 4				# código syscall para  imprimir cadena
 	la $a0, 0($t0)          # carga la cat en $a0  para  imprimir
+	li $v0, 4				# código syscall para  imprimir cadena
 	syscall                 # imprime la cat
-	
-	lw $t0, 4($t0) # actual = actual-> siguiente
-	jr $ra         # Vuelve una vez que muestra
+
+	lw $t0, 4($t0)          # actual = actual -> siguiente	
+	jr $ra                  # Vuelve una vez que muestra
 
 	ReturnFromDisplay:
 	li $v0, 4 				# código syscall para  imprimir cadena
