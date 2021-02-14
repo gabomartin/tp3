@@ -29,7 +29,7 @@
 # Punto de entrada del programa. Solicita la entrada del usuario y dirige a las opciones del menú. #
 # ================================================================================================ #
 
-main:	lw $s1, slist				# head = nullptr
+main:	#lw $s1, slist				# head = nullptr
         
 #main: li $s1, numbers
       #li $s1, 4
@@ -137,31 +137,31 @@ GetUserMenuInput:
 
 NewCategory:
 
-    li $a0, 16   # Se necesitan 12 bytes (4 palabras)
-    li $v0, 9    # codigo para asignar memoria       <----simil sbrk
-    syscall      # return node address in v0
-
-
-    #jal Sbrk
-    move $s1, $v0           # preserva arg 1 
-
     la $a0, askForCat		# Solicita que ingrese una categoria
 	li $v0, 4				# codigo syscall para imprimir cadena
 	syscall					# imprime el mensaje
 
 	li $v0, 8               # lee la cadena
+	li $a1, 4               # lee la cadena
 	syscall                 # lee la cadena
-	sw $v0, 0($s1)          # almacenamos la cadena en la memoria, primer campo
-
-    #si es 0 signiica primero en la lista
-
-    la $t0, ccount
-	bne $t0, $0, first #salta a irst si es correcto
+	sw $v0, ($s0)      # almacenamos la cadena en la memoria, primer campo
     
-	first:
-	sw $0, 4($s1)           # next = puntero a nuevo nodo
-	jr $ra
-	addi $t0, $t0, 1
+    li $a0, 16   # Se necesitan 16 bytes (4 palabras)
+    li $v0, 9    # codigo para asignar memoria       <----simil sbrk
+    syscall      # return node address in v0
+
+    sw $t0, ($v0) # guarda el arg en new node
+    lw $t1, slist
+    beq $t1, $0, first # ? si la lista es vacia
+    sw $t1, 4($v0) # inserta new node por el frente
+    sw $v0, slist # actualiza la lista
+    jr $ra
+    first: 
+    sw $0, 4($v0) # primer nodo inicializado a null
+    sw $v0, slist # apunta la lista a new node
+    jr $ra
+    
+	
 
 
     #li $v0, 9
